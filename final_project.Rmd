@@ -1,0 +1,38 @@
+---
+title: "Red Wine"
+author: "Yoon-gu Hwang"
+date: "June 30, 2015"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+```
+
+# Univariate Plot Section
+```{r : Load *.csv file.}
+setwd('~/repos/nanodgreep3')
+wdf <- read.csv('wineQualityReds.csv')
+wdf <- wdf[,-1] # Get rid of unused column : 'X'
+str(wdf)
+summary(wdf)
+```
+
+## Quality
+```{r}
+qplot(wdf$quality) +
+  xlab('quality')
+```
+
+It is better to convert qulaity variable to categorical variable, because its values are always integers. 
+
+```{r}
+wdf$quality <- factor(wdf$quality)
+qplot(wdf$quality) +  xlab('quality')
+```
+
+```{r}
+summary(wdf$quality)
+```
+
+Quality has 6 scores, from 3 to 6. Most of all have 5 or 6.
