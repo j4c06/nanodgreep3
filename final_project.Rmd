@@ -24,7 +24,7 @@ qplot(wdf$quality) +
   xlab('quality')
 ```
 
-It is better to convert qulaity variable to categorical variable, because its values are always integers. 
+It is better to convert qulaity variable to categorical variable, because its values are always integers.
 
 ```{r}
 wdf$quality <- factor(wdf$quality)
@@ -36,3 +36,139 @@ summary(wdf$quality)
 ```
 
 Quality has 6 scores, from 3 to 6. Most of all have 5 or 6.
+
+## Fixed Acidity
+```{r}
+summary(wdf$fixed.acidity)
+qplot(wdf$fixed.acidity) + xlab('Fixed Acidity')
+```
+
+## Volatile Acidity
+```{r}
+summary(wdf$volatile.acidity)
+qplot(wdf$volatile.acidity) + xlab('Volatile Acidity')
+```
+
+```{r}
+summary(wdf$volatile.acidity)
+qplot(wdf$volatile.acidity) + xlab('Volatile Acidity') +
+  scale_x_continuous(limits=c(0, 1.2))
+```
+
+## Citric Acid 
+```{r}
+summary(wdf$citric.acid)
+qplot(wdf$citric.acid) + xlab('Citric Acid')
+```
+
+```{r}
+summary(wdf$citric.acid)
+qplot(wdf$citric.acid) + xlab('Citric Acid') +
+  scale_x_continuous(limits=c(0.0, 0.8))
+```
+
+## Residual Sugar
+```{r}
+summary(wdf$residual.sugar)
+qplot(wdf$residual.sugar) + xlab('Redidual Sugar')
+```
+
+```{r}
+summary(wdf$residual.sugar)
+qplot(wdf$residual.sugar) + xlab('Redidual Sugar') +
+  scale_x_continuous(limits = c(0, 5))
+```
+
+## Chlorides
+```{r}
+summary(wdf$chlorides)
+qplot(wdf$chlorides) + xlab('Chlorides')
+```
+
+```{r}
+summary(wdf$chlorides)
+qplot(wdf$chlorides) + xlab('Chlorides') +
+  scale_x_continuous(limits = c(0,0.2))
+```
+
+## Free Sulfur Dioxide
+```{r}
+summary(wdf$free.sulfur.dioxide)
+qplot(wdf$free.sulfur.dioxide) + xlab('Free Sulfur Dioxide')
+```
+
+```{r}
+summary(wdf$free.sulfur.dioxide)
+qplot(wdf$free.sulfur.dioxide) + xlab('Free Sulfur Dioxide') +
+  scale_x_continuous(limits = c(0,60))
+```
+
+## Total Sulfur Dioxide
+```{r}
+summary(wdf$total.sulfur.dioxide)
+qplot(wdf$total.sulfur.dioxide) + xlab('Total Sulfur Dioxide')
+```
+
+```{r}
+summary(wdf$total.sulfur.dioxide)
+qplot(wdf$total.sulfur.dioxide) + xlab('Total Sulfur Dioxide') +
+  scale_x_continuous(limits = c(0,160))
+```
+
+## Density
+```{r}
+summary(wdf$density)
+qplot(wdf$density  ) + xlab('Density')
+```
+
+```{r}
+summary(wdf$density)
+qplot(wdf$density) + xlab('Density') +
+  scale_x_continuous(limits = c(0.990,1.005))
+```
+
+## pH
+```{r}
+summary(wdf$pH)
+qplot(wdf$pH) + xlab('pH')
+```
+
+```{r}
+summary(wdf$pH)
+qplot(wdf$pH) + xlab('pH') +
+  scale_x_continuous(limits = c(2.6,3.8))
+```
+
+## Sulphates
+```{r}
+summary(wdf$sulphates)
+qplot(wdf$sulphates) + xlab('Sulphates')
+```
+
+```{r}
+summary(wdf$sulphates)
+qplot(wdf$sulphates) + xlab('Sulphates') +
+  scale_x_continuous(limits = c(0.3,1.5))
+```
+
+## Alcohol
+```{r}
+summary(wdf$alcohol)
+qplot(wdf$alcohol) + xlab('Alcohol')
+```
+
+```{r}
+summary(wdf$alcohol)
+qplot(wdf$alcohol) + xlab('Alcohol') +
+  scale_x_continuous(limits = c(8,14))
+```
+
+## Univariate Analysis
+
+# Bivariate Plots Section
+
+```{r}
+pairs(~fixed.acidity + volatile.acidity + citric.acid + residual.sugar, 
+      data = wdf, main = "Example")
+```
+
