@@ -7,6 +7,7 @@ output: html_document
 
 ```{r}
 library(ggplot2)
+library(GGally)
 ```
 
 # Univariate Plot Section
@@ -168,7 +169,13 @@ qplot(wdf$alcohol) + xlab('Alcohol') +
 # Bivariate Plots Section
 
 ```{r}
-pairs(~fixed.acidity + volatile.acidity + citric.acid + residual.sugar, 
+pairs(~fixed.acidity + volatile.acidity + citric.acid + residual.sugar +
+        chlorides + free.sulfur.dioxide + total.sulfur.dioxide + 
+        density + pH + sulphates + alcohol + quality, 
       data = wdf, main = "Example")
+```
+
+```{r}
+ggpairs(wdf)
 ```
 
