@@ -247,7 +247,7 @@ summary(alcholAndQuality)
 
 R^2 value is 0.22, that means alcohol explains about 22% of the wine quality.
 
-```{r, pH}
+```{r, pairs2}
 pairs.panels(wdf[, c(1, 3, 5, 6, 7, 9, 10, 12)], pch=".")
 ```
 
@@ -294,21 +294,86 @@ pH is correlated with fixed.acidity and citric.acid, and it makes sense by chemi
 
 ### What was the strongest relationship you found?
 
-The strongest relationship is alcohol.
+The strongest relationship is alcohol. It seems to affect quality value by statistics analysis.
+The others, including sugar, citric acid, and sulphaste are too weak to discuss the relation with quality.
 
 # Multivariate Plots Section
 
-```{r echo=FALSE, Multivariate_Plots}
+I converted quality to categorical features, taste(3-levels).
+  - NG : quality 3,4
+  - GD : quality 5,6
+  - EX : quality 7,8
 
+And, I just converted quality to factor variable, taste.detail.
+
+```{r echo=FALSE, Multivariate_Plots}
+qplot(alcohol, data=wdf, color=taste, geom='density') 
+qplot(residual.sugar, data=wdf, color=taste, geom='density') 
+qplot(citric.acid, data=wdf, color=taste, geom='density') 
+qplot(sulphates, data=wdf, color=taste, geom='density') 
 ```
+
+```{r echo=FALSE, Multivariate_Plots2}
+qplot(alcohol, data=wdf, color=taste.detail, geom='density') 
+qplot(residual.sugar, data=wdf, color=taste.detail, geom='density') 
+qplot(citric.acid, data=wdf, color=taste.detail, geom='density') 
+qplot(sulphates, data=wdf, color=taste.detail, geom='density') 
+```
+
+These four plots shows the followings :
+
+  - Excellent Quality tends to have more alcohol.
+  - residual.sugar is not related with taste quality.
+  - citric.acid affects the high wine quality.
+  - sulphat slightly affects the wine quality positively.
+
+```{r, box plot}
+qplot(x=taste, y=alcohol, data=wdf, geom='boxplot')
+qplot(x=taste, y=residual.sugar, data=wdf, geom='boxplot')
+qplot(x=taste, y=citric.acid, data=wdf, geom='boxplot')
+qplot(x=taste, y=sulphates, data=wdf, geom='boxplot')
+
+qplot(x=taste.detail, y=alcohol, data=wdf, geom='boxplot')
+qplot(x=taste.detail, y=residual.sugar, data=wdf, geom='boxplot')
+qplot(x=taste.detail, y=citric.acid, data=wdf, geom='boxplot')
+qplot(x=taste.detail, y=sulphates, data=wdf, geom='boxplot')
+```
+
+In this time, I tried to show boxplot for conveying same trend as the previous.
+
+```{r, alcohol citric.acid and quality}
+qplot(x=alcohol, y = citric.acid, color=taste, data=wdf)
+```
+
+Nothing stands out in the plot above.
+I want to compare only NG and EX, not GD. GD cases are too many.
+
+```{r, except GD}
+qplot(x=alcohol, y = citric.acid, color=taste, data=subset(wdf, taste != "GD"))
+```
+
+It can be divided diagonally. This proves agian that alcohol and citric.acid have positive relationship with wine quality.
+
+```{r, linear model}
+m1 <- lm(I(quality) ~ I(alcohol), data = wdf)
+m2 <- update(m1, ~ . + sulphates)
+m3 <- update(m2, ~ . + citric.acid)
+mtable(m1, m2, m3)
+```
+
+As we added the main features to linear model, R^2 value were getting higher.
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
 
+The relationship between Red wine quality and alcohol, citric.acid, can be shown again by using categorical variables. It is more intuitive than just numerical values.
+
+As I investigated, alcohol and citric acid are the main factor of red wine quality.
+
 ### Were there any interesting or surprising interactions between features?
 
-### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+Trying to visualize two extreme value(NG and EX) was very successful. Particulary, if you have too many samples, it will be good idea to compare two extreme ones.
 
 ------
 
@@ -316,27 +381,59 @@ The strongest relationship is alcohol.
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
-
+qplot(x = taste, data = wdf, fill = I('#099DD9')) +
+  ggtitle('New Variable : 3-level taste grade') + 
+  xlab('taste grade') +
+  ylab('Number of Wines')
 ```
 
 ### Description One
 
+For intuitive analysis and visual simplicity, I added new variable 'taste'. Most of wines are GD grade. I focused on NG and EX.
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-
+plot1 <- qplot(x = taste, y = residual.sugar, data = wdf, geom = 'boxplot', fill = taste)+
+  coord_cartesian(ylim=c(1, 4.5)) +
+  xlab('3-taste grade') + 
+  ylab('Sugar') +
+  ggtitle('Taste Grad and Sugar') +
+  theme(legend.position = 'none') 
+plot2 <- qplot(residual.sugar, data=wdf, color=taste, geom='density') +
+  coord_cartesian(xlim=c(1, 8)) +
+  ggtitle('Taste Grad and Sugar : density') +
+  theme(legend.position = 'none')
+grid.arrange(plot1, plot2, ncol = 1)
 ```
 
 ### Description Two
 
+Sugar is not crucial factor to determine red wine's quality. Every grade has almost same amount of residual sugar.
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
-
+plot1 <- qplot(x = taste, y = alcohol, data = wdf, geom = 'boxplot', fill = taste)+
+  xlab('3-taste grade') + 
+  ggtitle('Taste Grad and Alcohol') +
+  theme(legend.position = 'none') 
+plot2 <- qplot(x = taste, y = sulphates, data = wdf, geom = 'boxplot', fill = taste)+
+  coord_cartesian(ylim=c(0.3, 1.1)) +
+  xlab('3-taste grade') + 
+  ggtitle('Taste and Sulphates') +
+  theme(legend.position = 'none')
+grid.arrange(plot1, plot2, ncol = 1)
 ```
 
 ### Description Three
 
+Ex grade red wine tends to have more alcohol, than the others have. Sulphate have a positive tendency as 3-taste grade is going higher.
+
 ------
 
 # Reflection
+
+The red wine data was very tidy. So it was very convinient to handle data. Every feature have just numerical type. So I need to convert some numerical variable to categorical variable, e.g., taste and taste.detail. 
+
+It turned out that alcohol and sulphates are the main factor to determine high grade of wine, based on statistical linear modeling. However, their R square is not big enough.
+
+For future work, we can have chances to apply other nonlinear statistic models. It will lead us to a new aspect to analyze this red wine data.
