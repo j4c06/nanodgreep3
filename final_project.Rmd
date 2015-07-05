@@ -49,6 +49,8 @@ wdf$taste[wdf$quality == 3 | wdf$quality == 4] <- "NG"
 wdf$taste[wdf$quality == 5 | wdf$quality == 6] <- "GD" 
 wdf$taste[wdf$quality == 7 | wdf$quality == 8] <- "EX" 
 wdf$taste <- factor(wdf$taste, levels=c("NG", "GD", "EX"))
+
+wdf['taste.detail'] <- factor(wdf$quality, levels = c("3", "4", "5", "6", "7", "8"))
 ```
 
 - 3 and 4 : Not Good(NG) 
@@ -176,38 +178,123 @@ Also, most wines' sulphates have range from 0.3 to 1.2.
     - alcohol
     - quality
     - taste
-  1. Every feature has numerical type except taste. taste have ordered factor with 3 levels, "NG", "GD", and "EX".
+    - taste.details
+  1. Every feature has numerical type except taste and taste.detail. taste have ordered factor with 3 levels, "NG", "GD", and "EX", and taste.detail have ordered factor with 6 levels.
   
 ### What is/are the main feature(s) of interest in your dataset?
-
+  
+  The main features in this data are alcohol, residual.sugar, and quality(taste). I want to verify that which features among alcohol and residual.sugar determine a wine's better flavor.
+  
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
-
+  
+  Some people enjoy citric.acid flavor, or density. Therefore, two features can be one of factors for good taste.
+  
 ### Did you create any new variables from existing variables in the dataset?
 
+  I created a variable for 'taste' using quality variable. Because quality has only integer variable, so I think converting it to a categorical variable is good idea. In addition, I simplified 6 steps(3~8) to 3 steps(NG, GD, EX).
+  
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
-
+  The quality variable is not tidy. It have just integer values. I think there is no need to use the feature as integer. So I decided to convert it to ordered factor with 3-levels.
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
-cor(wdf[, c(1, 5, 6, 7, 8, 9, 10, 12)])
+cor(wdf[, c(3, 4, 8, 11, 12)])
 ```
 
-```{r}
-set.seed(10)
-pairs.panels(sample_n(wdf[1:11], 1000), pch=".")
+
+```{r, pairs}
+pairs.panels(wdf[, c(3, 4, 8, 11, 12)], pch=".")
 ```
+
+The alcohol feature has the most impact to quality. It is not ideal correlation, but it is quite high. Interesting thing is that residual.sugar is not correlated with quality. That menas the sweet wine doesn't implies better flavored wine.
+
+```{r, sugar effect}
+qplot(x=residual.sugar, y=quality, data=wdf)
+ggplot(aes(x=residual.sugar, y=quality), data=wdf) + 
+  geom_jitter(alpha = 0.33)
+  
+ggplot(aes(x=residual.sugar, y=quality), data=subset(wdf, residual.sugar > 0 & residual.sugar <= quantile(wdf$residual.sugar, 0.99))) + 
+  geom_jitter(alpha = 0.33) +
+  geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+Actually, residual.sugar cannot show a tendecy with quality feature. It turns out that sugar and quality don't have much relationship. 
+
+```{r, statistical summary}
+sugarAndQuality <- lm(quality ~ residual.sugar,
+                    data=subset(wdf, residual.sugar > 0 & residual.sugar <= quantile(wdf$residual.sugar, 0.99)))
+summary(sugarAndQuality)
+```
+
+R^2 describes that sugar and quality have almost zero relationship.
+
+```{r, alcohol effect}
+qplot(x=alcohol, y=quality, data=wdf)
+ggplot(aes(x=alcohol, y=quality), data=subset(wdf, alcohol > 0 & alcohol <= quantile(wdf$alcohol, 0.99))) + 
+  geom_jitter(alpha = 0.33) +
+  geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+This plot shows a tendency syaing that the more alcohol, the higer quality values.
+
+
+```{r, statistical summary2}
+alcholAndQuality <- lm(quality ~ alcohol,
+                    data=subset(wdf, alcohol > 0 & alcohol <= quantile(wdf$alcohol, 0.99)))
+summary(alcholAndQuality)
+```
+
+R^2 value is 0.22, that means alcohol explains about 22% of the wine quality.
+
+```{r, pH}
+pairs.panels(wdf[, c(1, 3, 5, 6, 7, 9, 10, 12)], pch=".")
+```
+
+Chemically, acid has low pH values. In this matrix plot, we can verify the fact. We can observe that fixed.acidity and citric.acid have negative correlation with pH.
+
+```{r, citric.acid and quality}
+ggplot(aes(x=citric.acid, y=quality), data=wdf) + 
+  geom_jitter(alpha=0.5) +
+  geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+```{r, sulphates and quality}
+ggplot(aes(x=sulphates, y=quality), 
+       data=subset(wdf, sulphates > 0 & sulphates <= quantile(wdf$sulphates, 0.99))) + 
+  geom_jitter(alpha=0.5) +
+  geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+In addition, sulphates and citric.acid has also relatively high correlation value with quality.
+
+```{r, statistical summary3}
+citricAndQuality <- lm(quality ~ citric.acid,
+                    data=subset(wdf, citric.acid > 0 & citric.acid <= quantile(wdf$citric.acid, 0.99)))
+summary(citricAndQuality)
+```
+
+```{r, statistical summary4}
+sulphatesAndQuality <- lm(quality ~ sulphates,
+                    data=subset(wdf, sulphates > 0 & sulphates <= quantile(wdf$sulphates, 0.99)))
+summary(sulphatesAndQuality)
+```
+
+However, their R^2 values do not exaplain much information with quality. 
 
 # Bivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
 
+  In the alcohol case, as its value is higer, I can see the better quality wine. However, in residual.sugar case, it was surprising. At first, I thought sweet flavor can be main factor of high quality wine, but it turned out they are totally not related.
+  
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+
+pH is correlated with fixed.acidity and citric.acid, and it makes sense by chemical principle. They correlated with each other, that is, they can be repeated information.
 
 ### What was the strongest relationship you found?
 
-
-
+The strongest relationship is alcohol.
 
 # Multivariate Plots Section
 
