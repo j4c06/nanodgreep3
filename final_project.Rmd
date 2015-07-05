@@ -27,166 +27,157 @@ str(wdf)
 levels(factor(wdf$quality))
 summary(wdf)
 ```
+
 The average quality is 5.6 and median of quality is 6.0. 
+About 75% of wines have quality score under or equal to 6.
 About 75% of wines have fixed acidity less than 10.0.
-About 75% of wines have residual sugar less than 2.6, but its maximum value, 15.5 is very high(very sweet).
+About 75% of wines have residual sugar less than 2.6, but its maximum value, 15.5 is very high(i.e. very sweet).
+All wines have similar density, from 0.99 to 1.00.
 
-
-```{r, Fixed Acidity}
-summary(wdf$fixed.acidity)
-qplot(wdf$fixed.acidity) + xlab('Fixed Acidity')
+```{r, Quality}
+qplot(x = quality, data = wdf)
 ```
 
-#### Volatile Acidity
-```{r}
-summary(wdf$volatile.acidity)
-qplot(wdf$volatile.acidity) + xlab('Volatile Acidity')
+Quality have all integer values. 
+Most wines have 5 or 6 score value.
+It can be categorized as three grades.
+
+```{r, Add new variable : taste}
+
+wdf['taste'] <- "GD"
+wdf$taste[wdf$quality == 3 | wdf$quality == 4] <- "NG" 
+wdf$taste[wdf$quality == 5 | wdf$quality == 6] <- "GD" 
+wdf$taste[wdf$quality == 7 | wdf$quality == 8] <- "EX" 
+wdf$taste <- factor(wdf$taste, levels=c("NG", "GD", "EX"))
 ```
 
-```{r}
-summary(wdf$volatile.acidity)
-qplot(wdf$volatile.acidity) + xlab('Volatile Acidity') +
-  scale_x_continuous(limits=c(0, 1.2))
-```
+- 3 and 4 : Not Good(NG) 
+- 5 and 6 : Good(GD)
+- 8 and 7 : Excellent(EX)
 
-#### Citric Acid 
-```{r}
-summary(wdf$citric.acid)
-qplot(wdf$citric.acid) + xlab('Citric Acid')
-```
-
-```{r}
-summary(wdf$citric.acid)
-qplot(wdf$citric.acid) + xlab('Citric Acid') +
-  scale_x_continuous(limits=c(0.0, 0.8))
-```
-
-#### Residual Sugar
-```{r}
-summary(wdf$residual.sugar)
-qplot(wdf$residual.sugar) + xlab('Redidual Sugar')
-```
-
-```{r}
-summary(wdf$residual.sugar)
-qplot(wdf$residual.sugar) + xlab('Redidual Sugar') +
-  scale_x_continuous(limits = c(0, 5))
-```
-
-#### Chlorides
-```{r}
-summary(wdf$chlorides)
-qplot(wdf$chlorides) + xlab('Chlorides')
-```
-
-```{r}
-summary(wdf$chlorides)
-qplot(wdf$chlorides) + xlab('Chlorides') +
-  scale_x_continuous(limits = c(0,0.2))
-```
-
-#### Free Sulfur Dioxide
-```{r}
-summary(wdf$free.sulfur.dioxide)
-qplot(wdf$free.sulfur.dioxide) + xlab('Free Sulfur Dioxide')
-```
-
-```{r}
-summary(wdf$free.sulfur.dioxide)
-qplot(wdf$free.sulfur.dioxide) + xlab('Free Sulfur Dioxide') +
-  scale_x_continuous(limits = c(0,60))
-```
-
-#### Total Sulfur Dioxide
-```{r}
-summary(wdf$total.sulfur.dioxide)
-qplot(wdf$total.sulfur.dioxide) + xlab('Total Sulfur Dioxide')
-```
-
-```{r}
-summary(wdf$total.sulfur.dioxide)
-qplot(wdf$total.sulfur.dioxide) + xlab('Total Sulfur Dioxide') +
-  scale_x_continuous(limits = c(0,160))
-```
-
-#### Density
-```{r}
-summary(wdf$density)
-qplot(wdf$density  ) + xlab('Density')
-```
-
-```{r}
-summary(wdf$density)
-qplot(wdf$density) + xlab('Density') +
-  scale_x_continuous(limits = c(0.990,1.005))
-```
-
-#### pH
-```{r}
-summary(wdf$pH)
-qplot(wdf$pH) + xlab('pH')
-```
-
-```{r}
-summary(wdf$pH)
-qplot(wdf$pH) + xlab('pH') +
-  scale_x_continuous(limits = c(2.6,3.8))
-```
-
-#### Sulphates
-```{r}
-summary(wdf$sulphates)
-qplot(wdf$sulphates) + xlab('Sulphates')
-```
-
-```{r}
-summary(wdf$sulphates)
-qplot(wdf$sulphates) + xlab('Sulphates') +
-  scale_x_continuous(limits = c(0.3,1.5))
-```
-
-#### Alcohol
-```{r}
-summary(wdf$alcohol)
-qplot(wdf$alcohol) + xlab('Alcohol')
-```
-
-```{r}
-summary(wdf$alcohol)
-qplot(wdf$alcohol) + xlab('Alcohol') +
-  scale_x_continuous(limits = c(8,14))
-```
-
-#### Quality
-```{r}
-qplot(wdf$quality) +
-  xlab('quality')
-```
-
-Quality has 6 scores from 3 to 8. Most of all have 5 or 6. However, I will remap the quality variable to taste, which have 3 values, Not Good(NG), Good(GD), and Exellent(EX).
-
-```{r, add taste variable}
-wdf['taste'] <- NA
-wdf$taste[wdf$quality==3 | wdf$quality==4] <- "NG"
-wdf$taste[wdf$quality==5 | wdf$quality==6] <- "GD"
-wdf$taste[wdf$quality==7 | wdf$quality==8] <- "EX"
-wdf$taste <- ordered(wdf$taste, levels = c("NG", "GD", "EX"))
+```{r, taste}
+qplot(x = taste, data = wdf)
 summary(wdf$taste)
+str(wdf$taste)
 ```
 
-```{r}
-qplot(wdf$taste) + xlab('taste')
+```{r, Percentage taste}
+ggplot(wdf, aes(x = taste)) +  
+  geom_bar(aes(y = (..count..)/sum(..count..))) + 
+  ylab('Percentage')
+
 ```
 
-```{r}
-ggplot(aes(x = alcohol, y = residual.sugar, color = taste), data = subset(wdf, wdf$taste != "GD")) + 
-  geom_point(alpha = 0.5)
+- NG : 4%
+- GD : 82%
+- EX : 14%
+
+```{r, fixed.acidity}
+summary(wdf$fixed.acidity)
+qplot(x = fixed.acidity, data = wdf, binwidth=0.25)
 ```
 
+Most wines have a fixed.acidity between 7 and 14.
 
+```{r, volatile.acidity}
+summary(wdf$volatile.acidity)
+qplot(x = volatile.acidity, data = wdf)
+qplot(x = volatile.acidity, data = wdf, binwidth=0.01) + 
+  coord_cartesian(xlim = c(0.1, 1.0))
+```
+
+Again, most of wines have a volatile.acidity between 0.2 and 1.0.
+
+```{r, citric.acid}
+summary(wdf$citric.acid)
+qplot(x = citric.acid, data = wdf)
+qplot(x = citric.acid, data = wdf, binwidth=0.01)
+table(wdf$citric.acid == 0)
+```
+
+About 10% of wines have no citric.acid.
+
+```{r, residual.sugar}
+summary(wdf$residual.sugar)
+qplot( x= residual.sugar, data = wdf)
+qplot( x= residual.sugar, data = wdf, binwidth = 0.1) +
+  coord_cartesian(xlim = c(0.9, 12.0))
+
+```
+
+Residual sugar of most wines varies from 1.0 to 7.0.
+
+```{r, chlorides}
+summary(wdf$chlorides)
+qplot(x=chlorides, data = wdf)
+qplot(x=chlorides, data = wdf, binwidth = 0.001) + 
+  coord_cartesian(xlim = c(0.05, 0.2))
+```
+
+Most wines have a chlorides ranging from 0.05 to 0.2.
+
+```{r, free.sulfur.dioxide}
+summary(wdf$free.sulfur.dioxide)
+qplot(x=free.sulfur.dioxide, data=wdf)
+qplot(x=free.sulfur.dioxide, data=wdf, binwidth=1) +
+  coord_cartesian(xlim=c(0, 60))
+```
+
+Most wines have free.sulfur.dioxide under 40.
+
+```{r, total.sulfur.dioxide}
+summary(wdf$total.sulfur.dioxide)
+qplot(x=total.sulfur.dioxide, data=wdf)
+qplot(x=total.sulfur.dioxide, data=wdf, binwidth = 1) + 
+  coord_cartesian(xlim=c(5, 160))
+```
+
+Again, most wine have total.sulfur.dioxide from 5 to 160.
+
+```{r, density}
+summary(wdf$density)
+qplot(x=density, data=wdf)
+qplot(x=density, data=wdf, binwidth=0.0001)
+var(wdf$density)
+```
+
+Most wine have almost same density, because its variance is 3.5e-06, so small.
+
+```{r, pH}
+summary(wdf$pH)
+qplot(x=pH, data=wdf)
+qplot(x=pH, data=wdf, binwidth = 0.01)
+```
+
+Of course, all wines are acidic(i.e. under pH 7), because all wines have pH from 2.5 to 4.010.
+
+```{r, sulphates}
+summary(wdf$sulphates)
+qplot(x=sulphates, data=wdf)
+qplot(x=sulphates, data=wdf, binwidth = 0.01) +
+  coord_cartesian(xlim=c(0.3, 1.5))
+```
+
+Also, most wines' sulphates have range from 0.3 to 1.2.
 
 ### What is the structure of your dataset?
 
+  1. 1599 wines in the data set with 13 features(I added one more feature, 'taste')
+    - fixed.acidity
+    - volatile.acidity
+    - citric.acid
+    - residual.sugar
+    - chlorides
+    - free.sulfur.dioxide
+    - total.sulfur.dioxide
+    - density
+    - pH
+    - sulphates
+    - alcohol
+    - quality
+    - taste
+  1. Every feature has numerical type except taste. taste have ordered factor with 3 levels, "NG", "GD", and "EX".
+  
 ### What is/are the main feature(s) of interest in your dataset?
 
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
