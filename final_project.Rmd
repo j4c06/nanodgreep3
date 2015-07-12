@@ -214,7 +214,9 @@ qplot(x=residual.sugar, y=quality, data=wdf)
 ggplot(aes(x=residual.sugar, y=quality), data=wdf) + 
   geom_jitter(alpha = 0.33)
   
-ggplot(aes(x=residual.sugar, y=quality), data=subset(wdf, residual.sugar > 0 & residual.sugar <= quantile(wdf$residual.sugar, 0.99))) + 
+ggplot(aes(x=residual.sugar, y=quality), 
+       data=subset(wdf, residual.sugar > 0 & 
+                        residual.sugar <= quantile(wdf$residual.sugar, 0.99))) + 
   geom_jitter(alpha = 0.33) +
   geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
@@ -223,7 +225,8 @@ Actually, residual.sugar cannot show a tendecy with quality feature. It turns ou
 
 ```{r, statistical summary}
 sugarAndQuality <- lm(quality ~ residual.sugar,
-                    data=subset(wdf, residual.sugar > 0 & residual.sugar <= quantile(wdf$residual.sugar, 0.99)))
+                    data=subset(wdf, residual.sugar > 0 & 
+                                     residual.sugar <= quantile(wdf$residual.sugar, 0.99)))
 summary(sugarAndQuality)
 ```
 
@@ -231,7 +234,8 @@ R^2 describes that sugar and quality have almost zero relationship.
 
 ```{r, alcohol effect}
 qplot(x=alcohol, y=quality, data=wdf)
-ggplot(aes(x=alcohol, y=quality), data=subset(wdf, alcohol > 0 & alcohol <= quantile(wdf$alcohol, 0.99))) + 
+ggplot(aes(x=alcohol, y=quality), data=subset(wdf, alcohol > 0 & 
+                                                   alcohol <= quantile(wdf$alcohol, 0.99))) + 
   geom_jitter(alpha = 0.33) +
   geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
@@ -241,7 +245,8 @@ This plot shows a tendency syaing that the more alcohol, the higer quality value
 
 ```{r, statistical summary2}
 alcholAndQuality <- lm(quality ~ alcohol,
-                    data=subset(wdf, alcohol > 0 & alcohol <= quantile(wdf$alcohol, 0.99)))
+                    data=subset(wdf, alcohol > 0 & 
+                                     alcohol <= quantile(wdf$alcohol, 0.99)))
 summary(alcholAndQuality)
 ```
 
@@ -270,13 +275,15 @@ In addition, sulphates and citric.acid has also relatively high correlation valu
 
 ```{r, statistical summary3}
 citricAndQuality <- lm(quality ~ citric.acid,
-                    data=subset(wdf, citric.acid > 0 & citric.acid <= quantile(wdf$citric.acid, 0.99)))
+                    data=subset(wdf, citric.acid > 0 & 
+                                     citric.acid <= quantile(wdf$citric.acid, 0.99)))
 summary(citricAndQuality)
 ```
 
 ```{r, statistical summary4}
 sulphatesAndQuality <- lm(quality ~ sulphates,
-                    data=subset(wdf, sulphates > 0 & sulphates <= quantile(wdf$sulphates, 0.99)))
+                    data=subset(wdf, sulphates > 0 & 
+                                     sulphates <= quantile(wdf$sulphates, 0.99)))
 summary(sulphatesAndQuality)
 ```
 
