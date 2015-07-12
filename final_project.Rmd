@@ -216,11 +216,14 @@ Also, most wines' sulphates have range from 0.3 to 1.2.
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
+# I choose intersting features : citric.acid, residual.sugar, sulphates, alcohold, and quality.
 cor(wdf[, c(3, 4, 8, 11, 12)])
 ```
 
 
 ```{r, pairs}
+# I don't need to extract all information from the data
+# It will require large computation to a computer.
 pairs.panels(wdf[, c(3, 4, 8, 11, 12)], pch=".")
 ```
 
@@ -421,11 +424,14 @@ qplot(x = taste, data = wdf, fill = I('#099DD9')) +
 
 ### Description One
 
-For intuitive analysis and visual simplicity, I added new variable 'taste'. Most of wines are GD grade. I focused on NG and EX.
+When someone tries a wine, he or she has an instinct feeling one of 3 types("not good", "good", or "excellent".) 
+Therefore, I added new variable 'taste' for intuitive analysis and visual simplicity. 
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-plot1 <- qplot(x = taste, y = residual.sugar, data = wdf, geom = 'boxplot', fill = taste)+
+plot1 <- qplot(x = taste, y = residual.sugar, 
+               data = wdf, geom = 'boxplot', 
+               fill = taste)+
   coord_cartesian(ylim=c(1, 4.5)) +
   xlab('3-taste grade') + 
   ylab('Sugar(g / dm^3)') +
@@ -433,6 +439,7 @@ plot1 <- qplot(x = taste, y = residual.sugar, data = wdf, geom = 'boxplot', fill
   theme(legend.position = 'none') 
 plot2 <- qplot(residual.sugar, data=wdf, color=taste, geom='density') +
   coord_cartesian(xlim=c(1, 8)) +
+  xlab('Sugar(g / dm^3)') +
   ggtitle('Taste Grad and Sugar : density') +
   theme(legend.position = 'none')
 grid.arrange(plot1, plot2, ncol = 1)
@@ -440,25 +447,34 @@ grid.arrange(plot1, plot2, ncol = 1)
 
 ### Description Two
 
-Sugar is not crucial factor to determine red wine's quality. Every grade has almost same amount of residual sugar.
+I had a reasoning that a sweet wine tends to get excellent grade, because people love sweet drinks.
+However, it tunred out to be wrong.
+Sugar is not a crucial factor to determine red wine's quality. Every grade has almost same amount of residual sugar.
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
-plot1 <- qplot(x = taste, y = alcohol, data = wdf, geom = 'boxplot', fill = taste)+
+plot1 <- qplot(x = taste, y = alcohol, 
+               data = wdf, geom = 'boxplot', 
+               fill = taste)+
   xlab('3-taste grade') + 
+  ylab('alcohol(%)') + 
   ggtitle('Taste Grad and Alcohol') +
   theme(legend.position = 'none') 
-plot2 <- qplot(x = taste, y = sulphates, data = wdf, geom = 'boxplot', fill = taste)+
+plot2 <- qplot(x = taste, y = sulphates, 
+               data = wdf, geom = 'boxplot', 
+               fill = taste)+
   coord_cartesian(ylim=c(0.3, 1.1)) +
   xlab('3-taste grade') + 
+  ylab('Sulphates(g / dm^3)') + 
   ggtitle('Taste and Sulphates') +
   theme(legend.position = 'none')
 grid.arrange(plot1, plot2, ncol = 1)
 ```
 
 ### Description Three
-
-Ex grade red wine tends to have more alcohol, than the others have. Sulphate have a positive tendency as 3-taste grade is going higher.
+Alcohol is the main reason for people to drink red wine, or other liquors, so I suspect it is main feature for high quality wine.
+In addition, potassium sulphate is an unique ingredient for making a red wine, so it is one of reasons that people in the world enjoy a red wine.
+As I expeceted, "EX"-graded red wine tends to have more alcohol, than the others have. Sulphate have a positive tendency as 3-taste grade is going higher.
 
 ------
 
