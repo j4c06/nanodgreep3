@@ -43,13 +43,14 @@ Most wines have 5 or 6 score value.
 It can be categorized as three grades.
 
 ```{r, Add new variable : taste}
-
+# Adding a simplified categorical varaible for the wine quality (NG, GD, EX)
 wdf['taste'] <- "GD"
 wdf$taste[wdf$quality == 3 | wdf$quality == 4] <- "NG" 
 wdf$taste[wdf$quality == 5 | wdf$quality == 6] <- "GD" 
 wdf$taste[wdf$quality == 7 | wdf$quality == 8] <- "EX" 
 wdf$taste <- factor(wdf$taste, levels=c("NG", "GD", "EX"))
 
+# Adding a categorical variable corresponding to quality variable(3~8)
 wdf['taste.detail'] <- factor(wdf$quality, levels = c("3", "4", "5", "6", "7", "8"))
 ```
 
@@ -107,6 +108,14 @@ qplot( x= residual.sugar, data = wdf, binwidth = 0.1) +
 
 ```
 
+```{r, residual.sugar with log scaled y}
+qplot(x=residual.sugar, 
+      data = wdf, 
+      binwidth = 0.1) + 
+  coord_cartesian(xlim = c(0.9, 12.0), ylim=c(1, 150)) +
+  scale_y_log10()
+```
+
 Residual sugar of most wines varies from 1.0 to 7.0.
 
 ```{r, chlorides}
@@ -114,6 +123,14 @@ summary(wdf$chlorides)
 qplot(x=chlorides, data = wdf)
 qplot(x=chlorides, data = wdf, binwidth = 0.001) + 
   coord_cartesian(xlim = c(0.05, 0.2))
+```
+
+```{r, chlorides with log-scale}
+qplot(x=chlorides, 
+      data = wdf, 
+      binwidth = 0.001) + 
+  coord_cartesian(xlim = c(0.05, 0.2), ylim = c(1, 100)) +
+  scale_y_log10()
 ```
 
 Most wines have a chlorides ranging from 0.05 to 0.2.
@@ -210,6 +227,7 @@ pairs.panels(wdf[, c(3, 4, 8, 11, 12)], pch=".")
 The alcohol feature has the most impact to quality. It is not ideal correlation, but it is quite high. Interesting thing is that residual.sugar is not correlated with quality. That menas the sweet wine doesn't implies better flavored wine.
 
 ```{r, sugar effect}
+# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
 qplot(x=residual.sugar, y=quality, data=wdf)
 ggplot(aes(x=residual.sugar, y=quality), data=wdf) + 
   geom_jitter(alpha = 0.33)
@@ -224,6 +242,7 @@ ggplot(aes(x=residual.sugar, y=quality),
 Actually, residual.sugar cannot show a tendecy with quality feature. It turns out that sugar and quality don't have much relationship. 
 
 ```{r, statistical summary}
+# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
 sugarAndQuality <- lm(quality ~ residual.sugar,
                     data=subset(wdf, residual.sugar > 0 & 
                                      residual.sugar <= quantile(wdf$residual.sugar, 0.99)))
@@ -233,6 +252,7 @@ summary(sugarAndQuality)
 R^2 describes that sugar and quality have almost zero relationship.
 
 ```{r, alcohol effect}
+# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
 qplot(x=alcohol, y=quality, data=wdf)
 ggplot(aes(x=alcohol, y=quality), data=subset(wdf, alcohol > 0 & 
                                                    alcohol <= quantile(wdf$alcohol, 0.99))) + 
@@ -244,6 +264,7 @@ This plot shows a tendency syaing that the more alcohol, the higer quality value
 
 
 ```{r, statistical summary2}
+# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
 alcholAndQuality <- lm(quality ~ alcohol,
                     data=subset(wdf, alcohol > 0 & 
                                      alcohol <= quantile(wdf$alcohol, 0.99)))
@@ -265,8 +286,10 @@ ggplot(aes(x=citric.acid, y=quality), data=wdf) +
 ```
 
 ```{r, sulphates and quality}
+# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
 ggplot(aes(x=sulphates, y=quality), 
-       data=subset(wdf, sulphates > 0 & sulphates <= quantile(wdf$sulphates, 0.99))) + 
+       data=subset(wdf, sulphates > 0 & 
+                        sulphates <= quantile(wdf$sulphates, 0.99))) + 
   geom_jitter(alpha=0.5) +
   geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
@@ -274,6 +297,7 @@ ggplot(aes(x=sulphates, y=quality),
 In addition, sulphates and citric.acid has also relatively high correlation value with quality.
 
 ```{r, statistical summary3}
+# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
 citricAndQuality <- lm(quality ~ citric.acid,
                     data=subset(wdf, citric.acid > 0 & 
                                      citric.acid <= quantile(wdf$citric.acid, 0.99)))
@@ -281,6 +305,7 @@ summary(citricAndQuality)
 ```
 
 ```{r, statistical summary4}
+# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
 sulphatesAndQuality <- lm(quality ~ sulphates,
                     data=subset(wdf, sulphates > 0 & 
                                      sulphates <= quantile(wdf$sulphates, 0.99)))
@@ -403,7 +428,7 @@ For intuitive analysis and visual simplicity, I added new variable 'taste'. Most
 plot1 <- qplot(x = taste, y = residual.sugar, data = wdf, geom = 'boxplot', fill = taste)+
   coord_cartesian(ylim=c(1, 4.5)) +
   xlab('3-taste grade') + 
-  ylab('Sugar') +
+  ylab('Sugar(g / dm^3)') +
   ggtitle('Taste Grad and Sugar') +
   theme(legend.position = 'none') 
 plot2 <- qplot(residual.sugar, data=wdf, color=taste, geom='density') +
