@@ -5,6 +5,11 @@ date: "July 5, 2015"
 output: html_document
 ---
 
+```{r global_options, include=FALSE}
+# won't show source code, ignore warning and message.
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+```
+
 ```{r, preparation}
 library(ggplot2)
 library(GGally)
@@ -31,7 +36,8 @@ summary(wdf)
 The average quality is 5.6 and median of quality is 6.0. 
 About 75% of wines have quality score under or equal to 6.
 About 75% of wines have fixed acidity less than 10.0.
-About 75% of wines have residual sugar less than 2.6, but its maximum value, 15.5 is very high(i.e. very sweet).
+About 75% of wines have residual sugar less than 2.6, 
+but its maximum value, 15.5 is very high(i.e. very sweet).
 All wines have similar density, from 0.99 to 1.00.
 
 ```{r, Quality}
@@ -51,7 +57,8 @@ wdf$taste[wdf$quality == 7 | wdf$quality == 8] <- "EX"
 wdf$taste <- factor(wdf$taste, levels=c("NG", "GD", "EX"))
 
 # Adding a categorical variable corresponding to quality variable(3~8)
-wdf['taste.detail'] <- factor(wdf$quality, levels = c("3", "4", "5", "6", "7", "8"))
+wdf['taste.detail'] <- factor(wdf$quality, 
+                              levels = c("3", "4", "5", "6", "7", "8"))
 ```
 
 - 3 and 4 : Not Good(NG) 
@@ -168,7 +175,8 @@ qplot(x=pH, data=wdf)
 qplot(x=pH, data=wdf, binwidth = 0.01)
 ```
 
-Of course, all wines are acidic(i.e. under pH 7), because all wines have pH from 2.5 to 4.010.
+Of course, all wines are acidic(i.e. under pH 7), 
+because all wines have pH from 2.5 to 4.010.
 
 ```{r, sulphates}
 summary(wdf$sulphates)
@@ -196,11 +204,14 @@ Also, most wines' sulphates have range from 0.3 to 1.2.
     - quality
     - taste
     - taste.details
-  1. Every feature has numerical type except taste and taste.detail. taste have ordered factor with 3 levels, "NG", "GD", and "EX", and taste.detail have ordered factor with 6 levels.
+  1. Every feature has numerical type except taste and taste.detail. 
+  'taste' have ordered factor with 3 levels, "NG", "GD", and "EX", and taste.detail have ordered factor with 6 levels.
   
 ### What is/are the main feature(s) of interest in your dataset?
   
-  The main features in this data are alcohol, residual.sugar, and quality(taste). I want to verify that which features among alcohol and residual.sugar determine a wine's better flavor.
+  The main features in this data are alcohol, residual.sugar, and quality(taste). 
+  I want to verify that which features among alcohol 
+  and residual.sugar determine a wine's better flavor.
   
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
   
@@ -208,15 +219,21 @@ Also, most wines' sulphates have range from 0.3 to 1.2.
   
 ### Did you create any new variables from existing variables in the dataset?
 
-  I created a variable for 'taste' using quality variable. Because quality has only integer variable, so I think converting it to a categorical variable is good idea. In addition, I simplified 6 steps(3~8) to 3 steps(NG, GD, EX).
+  I created a variable for 'taste' using quality variable. 
+  Because quality has only integer variable, 
+  so I think converting it to a categorical variable is good idea. 
+  In addition, I simplified 6 steps(3~8) to 3 steps(NG, GD, EX).
   
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
-  The quality variable is not tidy. It have just integer values. I think there is no need to use the feature as integer. So I decided to convert it to ordered factor with 3-levels.
+  The quality variable is not tidy. It have just integer values. 
+  I think there is no need to use the feature as integer. 
+  So I decided to convert it to ordered factor with 3-levels.
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
-# I choose intersting features : citric.acid, residual.sugar, sulphates, alcohold, and quality.
+# I choose intersting features : 
+# citric.acid, residual.sugar, sulphates, alcohold, and quality.
 cor(wdf[, c(3, 4, 8, 11, 12)])
 ```
 
@@ -227,7 +244,10 @@ cor(wdf[, c(3, 4, 8, 11, 12)])
 pairs.panels(wdf[, c(3, 4, 8, 11, 12)], pch=".")
 ```
 
-The alcohol feature has the most impact to quality. It is not ideal correlation, but it is quite high. Interesting thing is that residual.sugar is not correlated with quality. That menas the sweet wine doesn't implies better flavored wine.
+The alcohol feature has the most impact to quality. 
+It is not ideal correlation, but it is quite high. 
+Interesting thing is that residual.sugar is not correlated with quality. 
+That menas the sweet wine doesn't implies better flavored wine.
 
 ```{r, sugar effect}
 # I wanted to remove outliers, so I used quantile function for filtering 1% of data.
@@ -236,29 +256,36 @@ ggplot(aes(x=residual.sugar, y=quality), data=wdf) +
   geom_jitter(alpha = 0.33)
   
 ggplot(aes(x=residual.sugar, y=quality), 
-       data=subset(wdf, residual.sugar > 0 & 
-                        residual.sugar <= quantile(wdf$residual.sugar, 0.99))) + 
+       data=subset(wdf, 
+                   residual.sugar > 0 & 
+                   residual.sugar<=quantile(wdf$residual.sugar, 0.99))) + 
   geom_jitter(alpha = 0.33) +
   geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
 
-Actually, residual.sugar cannot show a tendecy with quality feature. It turns out that sugar and quality don't have much relationship. 
+Actually, residual.sugar cannot show a tendecy with quality feature. 
+It turns out that sugar and quality don't have much relationship. 
 
 ```{r, statistical summary}
-# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
-sugarAndQuality <- lm(quality ~ residual.sugar,
-                    data=subset(wdf, residual.sugar > 0 & 
-                                     residual.sugar <= quantile(wdf$residual.sugar, 0.99)))
+# I wanted to remove outliers, 
+# so I used quantile function for filtering 1% of data.
+sugarAndQuality <- 
+  lm(quality ~ residual.sugar,
+     data=subset(wdf, 
+                 residual.sugar > 0 & 
+                 residual.sugar <= quantile(wdf$residual.sugar, 0.99)))
 summary(sugarAndQuality)
 ```
 
 R^2 describes that sugar and quality have almost zero relationship.
 
 ```{r, alcohol effect}
-# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
+# I wanted to remove outliers, 
+# so I used quantile function for filtering 1% of data.
 qplot(x=alcohol, y=quality, data=wdf)
-ggplot(aes(x=alcohol, y=quality), data=subset(wdf, alcohol > 0 & 
-                                                   alcohol <= quantile(wdf$alcohol, 0.99))) + 
+ggplot(aes(x=alcohol, y=quality), 
+       data=subset(wdf, alcohol > 0 & 
+                        alcohol <= quantile(wdf$alcohol, 0.99))) + 
   geom_jitter(alpha = 0.33) +
   geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
@@ -267,7 +294,8 @@ This plot shows a tendency syaing that the more alcohol, the higer quality value
 
 
 ```{r, statistical summary2}
-# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
+# I wanted to remove outliers, 
+# so I used quantile function for filtering 1% of data.
 alcholAndQuality <- lm(quality ~ alcohol,
                     data=subset(wdf, alcohol > 0 & 
                                      alcohol <= quantile(wdf$alcohol, 0.99)))
@@ -280,7 +308,8 @@ R^2 value is 0.22, that means alcohol explains about 22% of the wine quality.
 pairs.panels(wdf[, c(1, 3, 5, 6, 7, 9, 10, 12)], pch=".")
 ```
 
-Chemically, acid has low pH values. In this matrix plot, we can verify the fact. We can observe that fixed.acidity and citric.acid have negative correlation with pH.
+Chemically, acid has low pH values. In this matrix plot, we can verify the fact. 
+We can observe that fixed.acidity and citric.acid have negative correlation with pH.
 
 ```{r, citric.acid and quality}
 ggplot(aes(x=citric.acid, y=quality), data=wdf) + 
@@ -289,7 +318,8 @@ ggplot(aes(x=citric.acid, y=quality), data=wdf) +
 ```
 
 ```{r, sulphates and quality}
-# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
+# I wanted to remove outliers, 
+# so I used quantile function for filtering 1% of data.
 ggplot(aes(x=sulphates, y=quality), 
        data=subset(wdf, sulphates > 0 & 
                         sulphates <= quantile(wdf$sulphates, 0.99))) + 
@@ -297,21 +327,25 @@ ggplot(aes(x=sulphates, y=quality),
   geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
 
-In addition, sulphates and citric.acid has also relatively high correlation value with quality.
+In addition, sulphates and citric.acid have also relatively high correlation value with quality.
 
 ```{r, statistical summary3}
-# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
-citricAndQuality <- lm(quality ~ citric.acid,
-                    data=subset(wdf, citric.acid > 0 & 
-                                     citric.acid <= quantile(wdf$citric.acid, 0.99)))
+# I wanted to remove outliers, 
+# so I used quantile function for filtering 1% of data.
+citricAndQuality <- 
+  lm(quality ~ citric.acid,
+     data=subset(wdf, citric.acid > 0 & 
+                      citric.acid <= quantile(wdf$citric.acid, 0.99)))
 summary(citricAndQuality)
 ```
 
 ```{r, statistical summary4}
-# I wanted to remove outliers, so I used quantile function for filtering 1% of data.
-sulphatesAndQuality <- lm(quality ~ sulphates,
-                    data=subset(wdf, sulphates > 0 & 
-                                     sulphates <= quantile(wdf$sulphates, 0.99)))
+# I wanted to remove outliers, 
+# so I used quantile function for filtering 1% of data.
+sulphatesAndQuality <- 
+  lm(quality ~ sulphates,
+     data=subset(wdf, sulphates > 0 & 
+                      sulphates <= quantile(wdf$sulphates, 0.99)))
 summary(sulphatesAndQuality)
 ```
 
@@ -321,15 +355,21 @@ However, their R^2 values do not exaplain much information with quality.
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
 
-  In the alcohol case, as its value is higer, I can see the better quality wine. However, in residual.sugar case, it was surprising. At first, I thought sweet flavor can be main factor of high quality wine, but it turned out they are totally not related.
+  In the alcohol case, as its value is higer, I can see the better quality wine. 
+  However, in residual.sugar case, it was surprising. 
+  At first, I thought sweet flavor can be main factor of high quality wine, 
+  but it turned out they are totally not related.
   
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
 
-pH is correlated with fixed.acidity and citric.acid, and it makes sense by chemical principle. They correlated with each other, that is, they can be repeated information.
+pH is correlated with fixed.acidity and citric.acid, 
+and it makes sense by chemical principle. 
+They correlated with each other, that is, they can be repeated information.
 
 ### What was the strongest relationship you found?
 
-The strongest relationship is alcohol. It seems to affect quality value by statistics analysis.
+The strongest relationship is alcohol. 
+It seems to affect quality value by statistics analysis.
 The others, including sugar, citric acid, and sulphaste are too weak to discuss the relation with quality.
 
 # Multivariate Plots Section
@@ -387,7 +427,8 @@ I want to compare only NG and EX, not GD. GD cases are too many.
 qplot(x=alcohol, y = citric.acid, color=taste, data=subset(wdf, taste != "GD"))
 ```
 
-It can be divided diagonally. This proves agian that alcohol and citric.acid have positive relationship with wine quality.
+It can be divided diagonally. 
+This proves agian that alcohol and citric.acid have positive relationship with wine quality.
 
 ```{r, linear model}
 m1 <- lm(I(quality) ~ I(alcohol), data = wdf)
@@ -408,7 +449,9 @@ As I investigated, alcohol and citric acid are the main factor of red wine quali
 
 ### Were there any interesting or surprising interactions between features?
 
-Trying to visualize two extreme value(NG and EX) was very successful. Particulary, if you have too many samples, it will be good idea to compare two extreme ones.
+Trying to visualize two extreme value(NG and EX) was very successful.
+Particulary, if you have too many samples, 
+it will be good idea to compare two extreme ones.
 
 ------
 
@@ -480,8 +523,14 @@ As I expeceted, "EX"-graded red wine tends to have more alcohol, than the others
 
 # Reflection
 
-The red wine data was very tidy. So it was very convinient to handle data. Every feature have just numerical type. So I need to convert some numerical variable to categorical variable, e.g., taste and taste.detail. 
+The red wine data was very tidy. So it was very convinient to handle data. 
+Every feature have just numerical type. 
+So I need to convert some numerical variable to categorical variable, e.g., taste and taste.detail. 
 
-It turned out that alcohol and sulphates are the main factor to determine high grade of wine, based on statistical linear modeling. However, their R square is not big enough.
+It turned out that 
+alcohol and sulphates are the main factor to determine high grade of wine, 
+based on statistical linear modeling. 
+However, their R squares are not big enough.
 
-For future work, we can have chances to apply other nonlinear statistic models. It will lead us to a new aspect to analyze this red wine data.
+For future work, we can have chances to apply other nonlinear statistic models. 
+It will lead us to a new aspect to analyze this red wine data.
