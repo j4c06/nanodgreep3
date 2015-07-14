@@ -44,7 +44,7 @@ All wines have similar density, from 0.99 to 1.00.
 ### Histogram of Quality
 
 ```{r, Quality}
-qplot(x = quality, data = wdf)
+qplot(x = as.factor(quality), data = wdf)
 ```
 
 Quality have all integer values. 
@@ -278,7 +278,7 @@ cor(wdf[, 1:12])
 ```{r, pairs}
 # I don't need to extract all information from the data
 # It will require large computation to a computer.
-pairs.panels(wdf[, 1:12], pch=".")
+pairs.panels(wdf[, c(1,3,4,5,6,7,8,9,10,11,12)], pch=".")
 ```
 
 The alcohol feature has the most impact to quality. 
@@ -352,7 +352,7 @@ pairs.panels(wdf[, c(1, 3, 5, 6, 7, 9, 10, 12)], pch=".")
 Chemically, acid has low pH values. In this matrix plot, we can verify the fact. 
 We can observe that fixed.acidity and citric.acid have negative correlation with pH.
 
-### (Citric Acid vs Quality) + (Sulphates vs Quality)
+### Citric Acid vs Quality
 
 ```{r, citric.acid and quality}
 ggplot(aes(x=citric.acid, y=quality), data=wdf) + 
@@ -371,6 +371,8 @@ summary(citricAndQuality)
 ```
 
 Citric.acid is also relatively highly correlated with quality.
+
+### Sulphates vs Quality
 
 ```{r, sulphates and quality}
 # I wanted to remove outliers, 
@@ -718,21 +720,27 @@ qplot(x = taste, data = wdf, fill = I('#099DD9')) +
 
 When someone tries a wine, he or she has an instinct feeling one of 3 types("not good", "good", or "excellent".) 
 Therefore, I added new variable 'taste' for intuitive analysis and visual simplicity. 
+The original data set has quality variables
+("3": 10, "4": 53, "5": 681, "6": 638, "7": 199, "8": 18).
+In new variable 'taste', there are 63 "NG"s, 1319 "GD"s, and 217 "EX"s.
+
+By doing this, it is possible to make the analysis intuitive 
+preserving the trend of quality variable.
 
 ### Plot Two
-```{r echo=FALSE, Plot_Two}
+```{r echo=FALSE, Plot_Two, fig.width=6, fig.height=8}
 plot1 <- qplot(x = taste, y = residual.sugar, 
                data = wdf, geom = 'boxplot', 
                fill = taste)+
   coord_cartesian(ylim=c(1, 4.5)) +
   xlab('3-taste grade') + 
   ylab('Sugar(g / dm^3)') +
-  ggtitle('Taste Grad and Sugar') +
+  ggtitle('Taste Grade and Sugar') +
   theme(legend.position = 'none') 
 plot2 <- qplot(residual.sugar, data=wdf, color=taste, geom='density') +
   coord_cartesian(xlim=c(1, 8)) +
   xlab('Sugar(g / dm^3)') +
-  ggtitle('Taste Grad and Sugar : density') +
+  ggtitle('Taste Grade and Sugar : density') +
   theme(legend.position = 'none')
 grid.arrange(plot1, plot2, ncol = 1)
 ```
@@ -741,45 +749,63 @@ grid.arrange(plot1, plot2, ncol = 1)
 
 I had a reasoning that a sweet wine tends to get excellent grade, because people love sweet drinks.
 However, it tunred out to be wrong.
-Sugar is not a crucial factor to determine red wine's quality. Every grade has almost same amount of residual sugar.
+In this box plot, the median values for each grade are "NG" : 2.100, "GD" : 2.200, and "EX" : 2.300.
+The median increases from "NG" to "EX", but the average don't have the same trend.
+The mean values for each grade are "NG" : 2.685, "GD" : 2.504, and "EX" : 2.709.
+In addition, R^2 value between residual.sugar and quailty was 0.000233. 
+This means there is no linear relationship between residual.sugar and quality(grade).
+Therefore, I can conclude that
+sugar is not a crucial factor to determine red wine's quality. 
+Every grade has almost same amount of residual sugar.
 
 ### Plot Three
+
 ```{r echo=FALSE, Plot_Three}
-plot1 <- qplot(x = taste, y = alcohol, 
-               data = wdf, geom = 'boxplot', 
-               fill = taste)+
-  xlab('3-taste grade') + 
-  ylab('alcohol(%)') + 
-  ggtitle('Taste Grad and Alcohol') +
-  theme(legend.position = 'none') 
-plot2 <- qplot(x = taste, y = sulphates, 
-               data = wdf, geom = 'boxplot', 
-               fill = taste)+
-  coord_cartesian(ylim=c(0.3, 1.1)) +
-  xlab('3-taste grade') + 
-  ylab('Sulphates(g / dm^3)') + 
-  ggtitle('Taste and Sulphates') +
-  theme(legend.position = 'none')
-grid.arrange(plot1, plot2, ncol = 1)
+qplot(x=alcohol, 
+      y = sulphates, 
+      color=taste, 
+      data=subset(wdf, taste != "GD"), geom="jitter") +
+  coord_cartesian(ylim = c(0.4, 1.25)) +
+  xlab('alcohol(%)') + 
+  ylab('sulphates (g / dm^3)') + 
+  ggtitle("Main Factors for determining \"NG\" or \"EX\" \n Alcohol & Sulphates")
 ```
 
 ### Description Three
+
 Alcohol is the main reason for people to drink red wine, or other liquors, so I suspect it is main feature for high quality wine.
 In addition, potassium sulphate is an unique ingredient for making a red wine, so it is one of reasons that people in the world enjoy a red wine.
-As I expeceted, "EX"-graded red wine tends to have more alcohol, than the others have. Sulphate have a positive tendency as 3-taste grade is going higher.
+
+As I expeceted, "EX"-graded red wine tends to have 1.3% more alcohol percentage on average, than "NG" grade have. ("NG" : 10.22%, "EX" : 11.52%)
+
+Also, sulphates is contained more 0.1513g/dm^3 on average than "NG" grade. 
+("NG" : 0.5922g/dm^3, "EX" : 0.7435g/dm^3)
+
+Finally their positive correlation values with quality (Alcohol : 0.48, Sulphates : 0.25) support the statement.
 
 ------
 
 # Reflection
 
 The red wine data was very tidy. So it was very convinient to handle data. 
-Every feature have just numerical type. 
-So I need to convert some numerical variable to categorical variable, e.g., taste and taste.detail. 
+However, every feature has just numerical type. 
 
-It turned out that 
+First, I added new categorical variables, 'taste' and 'taste.detail', based on numerical 'quality' variable. I could have simple and intuitive categorical variable preserving the tendency of 'quality' variable.
+
+Next, I did the univariate analysis for all variables. Some of them contain unnecessary data, called outlier. So I had to remove or rescale axes(x or y). After that, I could have better understand a variable.
+
+Thrid, in bivariate analysis, I needed correlation analysis and matrix pair plot of multiple variables as an overlook before choosing pairs of variables. Correlation analysis gave me a big help. By the analysis, I could suspect the main factors to determin wine quality. 
+
+In addition, I also tried to make a linear model to verify their relation. 
+By investigating R^2 value, I could make decision how import it is for wine quality.
+
+In multivariate analysis, I had problem to neatly visualize colormap. Numeric type variable was not so fitted to ggplot colormap scheme. I converted them to categorical variable in many ways.(I used 'cut()' and 'as.factor()')
+
+Finally, while sugar had no effect on high quality wine, it turned out that 
 alcohol and sulphates are the main factor to determine high grade of wine, 
 based on statistical linear modeling. 
-However, their R squares are not big enough.
+However, their R^2 values were not big enough.
 
 For future work, we can have chances to apply other nonlinear statistic models. 
-It will lead us to a new aspect to analyze this red wine data.
+Then, we may have a better fitted model with larger R^2 value.
+Besides, it will lead us to a new aspect to analyze this red wine data.
