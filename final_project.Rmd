@@ -255,22 +255,23 @@ Also, most wines' sulphates have range from 0.3 to 1.2.
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
-# I choose intersting features : 
-# citric.acid, residual.sugar, sulphates, alcohold, and quality.
-cor(wdf[, c(3, 4, 8, 11, 12)])
+# I choose intersting features : citric.acid, residual.sugar, sulphates, alcohold, and quality.
+cor(wdf[, 1:12])
 ```
 
 
 ```{r, pairs}
 # I don't need to extract all information from the data
 # It will require large computation to a computer.
-pairs.panels(wdf[, c(3, 4, 8, 11, 12)], pch=".")
+pairs.panels(wdf[, 1:12], pch=".")
 ```
 
 The alcohol feature has the most impact to quality. 
 It is not ideal correlation, but it is quite high. 
 Interesting thing is that residual.sugar is not correlated with quality. 
 That menas the sweet wine doesn't implies better flavored wine.
+
+### Suagar vs Quality
 
 ```{r, sugar effect}
 # I wanted to remove outliers, so I used quantile function for filtering 1% of data.
@@ -301,6 +302,8 @@ summary(sugarAndQuality)
 ```
 
 R^2 describes that sugar and quality have almost zero relationship.
+
+### Alcohol vs Quality
 
 ```{r, alcohol effect}
 # I wanted to remove outliers, 
@@ -333,6 +336,8 @@ pairs.panels(wdf[, c(1, 3, 5, 6, 7, 9, 10, 12)], pch=".")
 
 Chemically, acid has low pH values. In this matrix plot, we can verify the fact. 
 We can observe that fixed.acidity and citric.acid have negative correlation with pH.
+
+### (Citric Acid vs Quality) + (Sulphates vs Quality)
 
 ```{r, citric.acid and quality}
 ggplot(aes(x=citric.acid, y=quality), data=wdf) + 
@@ -373,6 +378,121 @@ summary(sulphatesAndQuality)
 ```
 
 However, their R^2 values do not exaplain much information with quality. 
+
+### Density vs Alcohol
+
+```{r, density vs alcohol}
+ggplot(aes(x=alcohol, y=density), data=wdf) +
+    geom_jitter(alpha=0.2) +
+    geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+```{r, density alcohol analysis}
+densityAndAlcohol <- 
+  lm(alcohol ~ density,
+     data=subset(wdf, density > 0 & 
+                      density <= quantile(wdf$density, 0.99)))
+summary(densityAndAlcohol)
+```
+
+I can see a linear trend to decrease density as a wine has alcohol percentage.
+Also, positive R^2 value(about 0.28) supports the statement that alcohol and density have
+negative linearly dependce.
+Generally, alcohol is lighter than water, more alcohol percentage denotes
+less density.
+
+### Sulfur Dioxide : Total vs Free
+
+```{r, total vs free}
+ggplot(aes(x=total.sulfur.dioxide, y=free.sulfur.dioxide), data=wdf) +
+    geom_jitter(alpha=0.2) +
+    geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+```{r, total and free sulfur dioxide analysis}
+totalAndFree <- 
+  lm(total.sulfur.dioxide ~ free.sulfur.dioxide,
+     data=subset(
+       wdf, 
+       free.sulfur.dioxide > 0 & 
+       free.sulfur.dioxide <= quantile(wdf$free.sulfur.dioxide, 0.99))
+     ) #  I want to remove top 1% outliers in this analysis
+summary(totalAndFree)
+```
+
+Total sulfur dioxide and free sulfur dioxide have a positive linear dependence.
+Interestingly, variances of two variable are getting bigger 
+as they have high values.
+
+They are very similary compounds to each other, this trend is so trivial. 
+
+### pH vs Citric Acid
+
+```{r, pH vs citric acid}
+ggplot(aes(x=pH, y=citric.acid), data=wdf) +
+    geom_jitter(alpha=0.2) +
+    geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+```{r, pH and citric acid analysis}
+pHAndCitric <- 
+  lm(pH ~ citric.acid,
+     data=subset(
+       wdf, 
+       citric.acid > 0 & 
+       citric.acid <= quantile(wdf$citric.acid, 0.99))
+     ) #  I want to remove top 1% outliers in this analysis
+summary(pHAndCitric)
+```
+
+pH is the measure to denote how much acid a stuff is. 
+Under pH 7, it is called acid,
+so it is clear that the trend that high citric.acid values make lower pH values.
+
+### pH vs Fixed Acid
+
+```{r, pH vs fixed.acid}
+ggplot(aes(x=pH, y=fixed.acidity), data=wdf) +
+    geom_jitter(alpha=0.2) +
+    geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+```{r, pH and fixed acid analysis}
+phAndFixed <- 
+  lm(total.sulfur.dioxide ~ free.sulfur.dioxide,
+     data=subset(
+       wdf, 
+       free.sulfur.dioxide > 0 & 
+       free.sulfur.dioxide <= quantile(wdf$free.sulfur.dioxide, 0.99))
+     ) #  I want to remove top 1% outliers in this analysis
+summary(phAndFixed)
+```
+
+Again, like the previous (pH vs citric.acid), fixed acidity is a factor that 
+means lower pH.
+
+### pH vs Volatile Acid
+
+```{r, ph vs volatile acid}
+ggplot(aes(x=pH, y=volatile.acidity), data=wdf) +
+    geom_jitter(alpha=0.2) +
+    geom_smooth(method = 'lm', se = T, color = 'blue')
+```
+
+```{r, pH and volatile analysis}
+pHVolatile <- 
+  lm(pH ~ volatile.acidity,
+     data=subset(
+       wdf, 
+       volatile.acidity > 0 & 
+       volatile.acidity <= quantile(wdf$volatile.acidity, 0.99))
+     ) #  I want to remove top 1% outliers in this analysis
+summary(pHVolatile)
+```
+
+This relation is interesting. Its trend is very rear,
+because generally strong acidity should have low pH. 
+When I looked at R^2 value, its value is near zero. 
+I can saty that this trend has no meaningful information.
 
 # Bivariate Analysis
 
