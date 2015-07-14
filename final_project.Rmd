@@ -105,6 +105,8 @@ qplot(x = volatile.acidity, data = wdf, binwidth=0.01) +
   coord_cartesian(xlim = c(0.1, 1.0))
 ```
 
+I want to remove outliers that are greater than 1.00.
+Then, we can look this hitoram closer.
 Again, most of wines have a volatile.acidity between 0.2 and 1.0.
 
 ### Histogram of Citric.Acid
@@ -112,11 +114,13 @@ Again, most of wines have a volatile.acidity between 0.2 and 1.0.
 ```{r, citric.acid}
 summary(wdf$citric.acid)
 qplot(x = citric.acid, data = wdf)
-qplot(x = citric.acid, data = wdf, binwidth=0.01)
+qplot(x = citric.acid, data = wdf, binwidth=0.01)+ 
+  coord_cartesian(xlim = c(0.1, 0.80))
 table(wdf$citric.acid == 0)
 ```
 
-About 10% of wines have no citric.acid.
+Removing outliers above 1.00, histogram distribution is closer to uniform.
+In addition, about 10% of wines have no citric.acid.
 
 ### Histogram of Residual.Sugar
 
@@ -128,6 +132,9 @@ qplot( x= residual.sugar, data = wdf, binwidth = 0.1) +
 
 ```
 
+The frequency variance of residual.sugar is quite big, 
+so I want to apply y-log scale.
+
 ```{r, residual.sugar with log scaled y}
 qplot(x=residual.sugar, 
       data = wdf, 
@@ -136,6 +143,8 @@ qplot(x=residual.sugar,
   scale_y_log10()
 ```
 
+I set y range to (1, 150), 
+because a value less than 1 does not make sense in log scale.
 Residual sugar of most wines varies from 1.0 to 7.0.
 
 ### Histogram of Chlorides
@@ -147,6 +156,9 @@ qplot(x=chlorides, data = wdf, binwidth = 0.001) +
   coord_cartesian(xlim = c(0.05, 0.2))
 ```
 
+The frequency variance of chlorides is quite big, 
+so I applied y-log scale.
+
 ```{r, chlorides with log-scale}
 qplot(x=chlorides, 
       data = wdf, 
@@ -155,6 +167,7 @@ qplot(x=chlorides,
   scale_y_log10()
 ```
 
+I set y range to (1, 100) to make sense in log scale.
 Most wines have a chlorides ranging from 0.05 to 0.2.
 
 ```{r, free.sulfur.dioxide}
@@ -164,6 +177,7 @@ qplot(x=free.sulfur.dioxide, data=wdf, binwidth=1) +
   coord_cartesian(xlim=c(0, 60))
 ```
 
+I deleted long tailed data for looking closer to the plot.
 Most wines have free.sulfur.dioxide under 40.
 
 ### Histogram of Total.Sulfur.Dioxide
@@ -175,6 +189,8 @@ qplot(x=total.sulfur.dioxide, data=wdf, binwidth = 1) +
   coord_cartesian(xlim=c(5, 160))
 ```
 
+In the same way to remove long tailed data in the previous, 
+I also deleted data in the tail.
 Again, most wine have total.sulfur.dioxide from 5 to 160.
 
 ### Histogram of Deinsity
@@ -182,7 +198,6 @@ Again, most wine have total.sulfur.dioxide from 5 to 160.
 ```{r, density}
 summary(wdf$density)
 qplot(x=density, data=wdf)
-qplot(x=density, data=wdf, binwidth=0.0001)
 var(wdf$density)
 ```
 
@@ -193,7 +208,6 @@ Most wine have almost same density, because its variance is 3.5e-06, so small.
 ```{r, pH}
 summary(wdf$pH)
 qplot(x=pH, data=wdf)
-qplot(x=pH, data=wdf, binwidth = 0.01)
 ```
 
 Of course, all wines are acidic(i.e. under pH 7), 
@@ -208,6 +222,7 @@ qplot(x=sulphates, data=wdf, binwidth = 0.01) +
   coord_cartesian(xlim=c(0.3, 1.5))
 ```
 
+I got rid of outliers in the tails for better understanding about histogram trend.
 Also, most wines' sulphates have range from 0.3 to 1.2.
 
 ### What is the structure of your dataset?
