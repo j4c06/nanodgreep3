@@ -345,18 +345,6 @@ ggplot(aes(x=citric.acid, y=quality), data=wdf) +
   geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
 
-```{r, sulphates and quality}
-# I wanted to remove outliers, 
-# so I used quantile function for filtering 1% of data.
-ggplot(aes(x=sulphates, y=quality), 
-       data=subset(wdf, sulphates > 0 & 
-                        sulphates <= quantile(wdf$sulphates, 0.99))) + 
-  geom_jitter(alpha=0.5) +
-  geom_smooth(method = 'lm', se = T, color = 'blue')
-```
-
-In addition, sulphates and citric.acid have also relatively high correlation value with quality.
-
 ```{r, statistical summary3}
 # I wanted to remove outliers, 
 # so I used quantile function for filtering 1% of data.
@@ -365,6 +353,18 @@ citricAndQuality <-
      data=subset(wdf, citric.acid > 0 & 
                       citric.acid <= quantile(wdf$citric.acid, 0.99)))
 summary(citricAndQuality)
+```
+
+Citric.acid is also relatively highly correlated with quality.
+
+```{r, sulphates and quality}
+# I wanted to remove outliers, 
+# so I used quantile function for filtering 1% of data.
+ggplot(aes(x=sulphates, y=quality), 
+       data=subset(wdf, sulphates > 0 & 
+                        sulphates <= quantile(wdf$sulphates, 0.99))) + 
+  geom_jitter(alpha=0.5) +
+  geom_smooth(method = 'lm', se = T, color = 'blue')
 ```
 
 ```{r, statistical summary4}
@@ -377,6 +377,7 @@ sulphatesAndQuality <-
 summary(sulphatesAndQuality)
 ```
 
+In addition, sulphates have also relatively high correlation value with quality.
 However, their R^2 values do not exaplain much information with quality. 
 
 ### Density vs Alcohol
@@ -545,19 +546,28 @@ These four plots shows the followings :
   - citric.acid affects the high wine quality.
   - sulphat slightly affects the wine quality positively.
 
-```{r, box plot}
-qplot(x=taste, y=alcohol, data=wdf, geom='boxplot')
-qplot(x=taste, y=residual.sugar, data=wdf, geom='boxplot')
-qplot(x=taste, y=citric.acid, data=wdf, geom='boxplot')
-qplot(x=taste, y=sulphates, data=wdf, geom='boxplot')
+We can check the previous again by boxplots.
 
-qplot(x=taste.detail, y=alcohol, data=wdf, geom='boxplot')
+```{r, box plot detaile taste}
 qplot(x=taste.detail, y=residual.sugar, data=wdf, geom='boxplot')
 qplot(x=taste.detail, y=citric.acid, data=wdf, geom='boxplot')
 qplot(x=taste.detail, y=sulphates, data=wdf, geom='boxplot')
+qplot(x=taste.detail, y=alcohol, data=wdf, geom='boxplot')
 ```
 
-In this time, I tried to show boxplot for conveying same trend as the previous.
+Here is an interesting findings. 
+Alcohol has no big impact on wine quality when the score is between 3 and 5.
+After score 6, higher alcohol percentage makes better quality wine.
+
+```{r, box plot taste}
+qplot(x=taste, y=residual.sugar, data=wdf, geom='boxplot')
+qplot(x=taste, y=citric.acid, data=wdf, geom='boxplot')
+qplot(x=taste, y=sulphates, data=wdf, geom='boxplot')
+qplot(x=taste, y=alcohol, data=wdf, geom='boxplot')
+```
+
+In this simplied grades plot, we have similar results and findings.
+High alcohol percentage mainly distinguishes EX grade wine, not NG and GD grade.
 
 ```{r, alcohol citric.acid and quality}
 qplot(x=alcohol, y = citric.acid, color=taste, data=wdf)
@@ -581,6 +591,87 @@ mtable(m1, m2, m3)
 ```
 
 As we added the main features to linear model, R^2 value were getting higher.
+
+### pH vs acidity vs quality
+```{r, pH vs acidity vs quality}
+ggplot(aes(x=pH, y=fixed.acidity, color=quality), data = wdf) +
+    geom_jitter(alpha=0.5)
+```
+
+Its color map is not neat. It is hard to see the distribution of quality.
+So I will replace it to categorical variable(that's why I added taste.detail)
+
+```{r, pH vs acidity vs quality 2}
+# I added the variable taste.detial = as.factor(quality)
+ggplot(aes(x=pH, y=fixed.acidity, color=taste.detail), data = wdf) +
+    geom_jitter(alpha=0.5)
+```
+
+For silplified version, only 3 grades.
+
+```{r, pH vs acidity vs quality 3}
+# I added the variable taste as a simplified quality grades
+ggplot(aes(x=pH, y=fixed.acidity, color=taste), data = wdf) +
+    geom_jitter(alpha=0.5)
+```
+
+In this time, we have too much green type dots. 
+I want to focus on low quality and best quality wines.
+
+```{r, pH vs acidity vs quality 4}
+ggplot(aes(x=pH, y=fixed.acidity, color=taste), 
+       data = subset(wdf, taste != "GD")) +
+    geom_jitter(alpha=0.8)
+```
+
+I could not catch any particular relation in this graph. 
+NG and EX both scattered evenly.
+
+### density vs alcohol vs quality
+
+```{r, density vs alcohol vs quality}
+ggplot(aes(y=density, x=alcohol, color=quality), data = wdf) +
+    geom_jitter(alpha=0.2)
+```
+
+```{r, density vs alcohol vs quality 2}
+ggplot(aes(y=density, x=alcohol, color=taste.detail), data = wdf) +
+    geom_jitter(alpha=0.2)
+```
+
+```{r, density vs alcohol vs quality 3}
+ggplot(aes(y=density, x=alcohol, color=taste), data = wdf) +
+    geom_jitter(alpha=0.2)
+```
+
+```{r, density vs alcohol vs quality 4}
+ggplot(aes(y=density, x=alcohol, color=taste), 
+       data = subset(wdf, taste != "GD")) +
+    geom_jitter(alpha=0.8)
+```
+
+I can say that excellent grade wine have high alcohol percentage. 
+After 12% alcohol, NG grade wines hardly show up. 
+However, both grade have no particular density trend. 
+
+### pH vs volatile.acid vs fixed acid
+
+```{r, pH vs volatile.acid vs fixed acid}
+ggplot(aes(x=volatile.acidity, y=fixed.acidity, color=pH), data = wdf) +
+    geom_jitter(alpha=0.8)
+```
+```{r, pH vs volatile.acid vs fixed acid 2}
+# I makes intervals to visualize pH as a categorical variable
+wdf$categorical_pH <- cut(wdf$pH, 
+                       breaks = c(-2.5, 3, 3.5, 4), 
+                       right = FALSE)
+ggplot(aes(x=volatile.acidity, y=fixed.acidity, color=categorical_pH), 
+       data = wdf) +
+    geom_jitter(alpha=0.4)
+```
+
+In this plot, we can say that high fixed acidity decreases pH, and 
+volatile acidity have almost no effects on pH. 
 
 # Multivariate Analysis
 
